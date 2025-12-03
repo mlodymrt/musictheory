@@ -27,7 +27,7 @@ open index.html
 
 ---
 
-<a name="pl"></a>MusicTheory
+<a name="pl"></a>##MusicTheory
 Prosta aplikacja webowa, którą buduję żeby nauczyć się zarówno teorii muzyki jak i HTML i JS.
 Wybierasz skalę, a aplikacja pokazuje Ci nuty i proste akordy.
 Work in progress - Projekt dla funu :)
