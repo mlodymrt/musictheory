@@ -1,4 +1,3 @@
-// DANE
 const NUTY = ["C", "C#", "D", "D#", "E", "F", "F#", "G", "G#", "A", "A#", "B"];
 
 const SKALE = {
@@ -17,23 +16,26 @@ const AKORDY = {
     sus4:      { name: "sus4", intervals: [0, 5, 7] }
 };
 
-
-
-
 function noteIndeks(note) {
     return NUTY.indexOf(note);
 }
 
 function transpose(note, semitones) {
-    return NUTY[(noteIndeks(note) + semitones) % NUTY.length];
+    const idx = noteIndeks(note);
+    if (idx === -1) {
+        console.warn("n znalazlo nuty ", note);
+        return undefined;
+    }
+    const newIndex = (idx + semitones + NUTY.length) % NUTY.length;
+    return NUTY[newIndex];
 }
 
 
-// gen skali
 
+// gen skali
 function generujSkale(root, scaleName) {
     const pattern = SKALE[scaleName];
-    if (!pattern) { //failsafe
+    if (!pattern) { // failsafe
         alert("n ma takiej skali");
         return null;
     }
@@ -41,8 +43,12 @@ function generujSkale(root, scaleName) {
     const scale = [root];
     let current = root;
 
-    pattern.forEach(step => { //transpozycja czy inny przymiotnik polski
+    pattern.forEach(step => { 
         current = transpose(current, step);
+        if (!current) {
+            alert("blad w transpozycji!");
+            return null;
+        }
         scale.push(current);
     });
 
@@ -50,17 +56,19 @@ function generujSkale(root, scaleName) {
 }
 
 
-// gen akordu do nuty
 
+// gen akordu do nuty
 function generujAkord(root, type) {
     const info = AKORDY[type];
     if (!info) {
         alert("nie ma takiego typu");
-        
         return null;
     }
 
     const nutyAkordu = info.intervals.map(i => transpose(root, i));
+    if (nutyAkordu.includes(undefined)) {
+        console.warn("zla nuta bazowa", root);
+    }
 
     return {
         name: `${root}${info.name}`,
@@ -73,28 +81,34 @@ function generujAkord(root, type) {
 
 function generujAkordZeSkali(scale, degree, type) {
     const index = degree - 1;
-    if (index < 0 || index >= scale.length) {
+    if (!Number.isInteger(degree) || index < 0 || index >= scale.length) {
         alert("taki stopien n istnieje");
         return null;
     }
 
-    const rootNote = scale[index];  
+    const rootNote = scale[index];
     return generujAkord(rootNote, type);
 }
 
 
-// pseudo interface
 
+// pseudo interface
 function runInteractive() {
 
     // tonika
-    const root = prompt("podaj tonike (np C D# A):");
+    let root = prompt("podaj tonike (np C D# A):");
+    if (root === null) return;
+
+    root = root.trim();
     if (!NUTY.includes(root)) {
         return alert("niepoprawna!");
     }
 
     // skala
-    const scaleName = prompt("podaj skale (major, minor, dorian, mixolydian, pentatonic):");
+    let scaleName = prompt("podaj skale (major, minor, dorian, mixolydian, pentatonic):");
+    if (scaleName === null) return;
+
+    scaleName = scaleName.trim();
     const scale = generujSkale(root, scaleName);
     if (!scale) return;
 
@@ -108,8 +122,16 @@ function runInteractive() {
     });
     scaleText += `\n(1 - ${scale.length})`;
 
-    // pokazywaie tych smiesznych skali
-    const degree = Number(prompt(scaleText));
+    // pokazywanie tych smiesznych skali
+    let degreeInput = prompt(scaleText);
+    if (degreeInput === null) return;
+
+    degreeInput = degreeInput.trim();
+    const degree = Number(degreeInput);
+
+    if (!Number.isInteger(degree) || degree < 1 || degree > scale.length) {
+        return alert("niepoprawny stopien!");
+    }
 
     // generowanie każdego typu akordu
     console.log(`\nakordy od stopnia ${degree}:`);
@@ -123,4 +145,10 @@ function runInteractive() {
         }
     });
 }
-runInteractive();
+
+// runInteractive();
+
+let btn1 = document.getElementById("start-test");
+btn1.addEventListener('click',()=>{
+    runInteractive();
+})
