@@ -90,7 +90,8 @@ function generujAkordZeSkali(scale, degree, type) {
     return generujAkord(rootNote, type);
 }
 
-
+const tonika = document.getElementById("notesinscale");
+const rootnote1 = document.getElementById("scale");
 
 // pseudo interface
 function runInteractive() {
@@ -140,6 +141,8 @@ function runInteractive() {
         const chord = generujAkordZeSkali(scale, degree, type);
         if (chord) {
             console.log(` ${chord.name}`);
+            rootnote1.innerHTML = "Tonika: " + root + " " + scaleName;
+            tonika.innerHTML = "Stopnie skali: " + scale;
             console.log("   dzwieki:", chord.NUTY.join(" - "));
             console.log("   interwaly:", chord.intervals.join(", "));
         }
